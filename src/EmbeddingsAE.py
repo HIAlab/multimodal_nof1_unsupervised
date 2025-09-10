@@ -10,11 +10,23 @@ import torch.nn as nn
 from src.AE import AutoEncoder
 from src.ImageDataset import ImageDataset
 from src.AE_utils import default_trans, non_trans
+from src.test_utils import prep_embedding_pca_data_for_tests
 import yaml
 
 with open("./parameters.yaml") as f:
     yaml_params = yaml.safe_load(f)
 FINAL_IMAGE_SIZE = yaml_params["FINAL_IMAGE_SIZE"]
+SIMULATION_OR_PILOT = yaml_params["SIMULATION_OR_PILOT"]
+if isinstance(FINAL_IMAGE_SIZE, str):
+    FINAL_IMAGE_SIZE = eval(FINAL_IMAGE_SIZE)
+
+RELEVANT_COLUMNS = yaml_params["RELEVANT_COLUMNS"]
+if SIMULATION_OR_PILOT == "PILOT":
+    TARGET_COLUMN = yaml_params["TARGET_COLUMN_AVGSCORE"]
+else:
+    TARGET_COLUMN = yaml_params["TARGET_COLUMN_SIMSEV"]
+
+RELEVANT_COLUMNS = RELEVANT_COLUMNS + [TARGET_COLUMN]
 
 class AnalyzeStudyAE():
     '''
@@ -25,18 +37,62 @@ class AnalyzeStudyAE():
     csv_file: metadata file of images
     
     '''
-    def __init__(self, data_path, output_dir, split_number, ids_to_keep,csv_file="study.csv"):
+    def __init__(self, data_path, output_dir, split_number, ids_to_keep,treatment_column, target_column, csv_file="study.csv"):
         self.output_dir = output_dir
         self.data_path = data_path
         self.split_number = split_number
         self.study_df = self._read_study_params(csv_file,ids_to_keep)
+        self.treatment_column = treatment_column
+        self.target_column = target_column
 
     def _read_study_params(self, study_file_path,ids_to_keep):
+        
         sim_df = pd.read_csv(f"{self.data_path}/{study_file_path}")
+        sim_ids = sim_df["Id"].unique()
+
+        if SIMULATION_OR_PILOT == "PILOT":
+            sorted_ids = []
+            for i in sim_ids:
+                s = sim_df[sim_df['Id'] == i].sort_values('Timestamp (From Photo)(MMDD-YYYY-HHMMSS)')
+                sorted_ids.append(s)
+            df_tsorted = pd.concat(sorted_ids, ignore_index=True)
+            df_tsorted = df_tsorted.rename(columns = {c: c.replace("\n"," ").replace("\r","") for c in list(df_tsorted.columns)})
+
+            
+
+            score_columns = ['scores_siqiao', 'scores_siqi', 'scores_shuheng',
+       'scores_xuliang', 'scores_joslyn']
+            
+            df_tsorted["AvgScore"] = df_tsorted[score_columns].mean(axis=1)
+            df_tsorted["Path"] = f"{self.data_path}/" + df_tsorted["Id"].astype(str)
+
+            sim_df = df_tsorted
+           
+            sim_df.rename(columns={"Image Id(Id-Timestamp)":"ImageFile",
+                      "Intervention (Boolean)":"Intervention",
+                      "Intervention\n(Boolean)":"Intervention"}, inplace=True)
+            try:
+                sim_df[["ImageId1","ImageId2"]] = sim_df["ImageId"].str.split("_", expand=True)
+
+                for imageid_col in ["ImageId1","ImageId2"]:
+                    sim_df[imageid_col] = sim_df[imageid_col].astype(int)
+
+                sim_df = sim_df.sort_values(["Id","ImageId2"])
+            except:
+                if "ImageId" not in sim_df.columns:
+                    sim_df["ImageId"] = ""
+                sim_df = sim_df.sort_values(["Id","ImageId"])
+            sim_df = sim_df.reset_index(drop=True)        
+        else:
+            sim_df["Path"] = f"{self.data_path}/images" 
+
         df = []
         
-        sim_ids = sim_df["Id"].unique()
-        ids_to_keep= [sim_ids[i] for i in ids_to_keep]
+        
+        #ids_to_keep= [sim_ids[i] for i in ids_to_keep]
+        ids_to_keep = [x for x in sim_ids if x in ids_to_keep]
+        print("COLUUUUMNS")
+        print(sim_df.columns)
         for i in ids_to_keep: 
             id_df = sim_df[sim_df["Id"] == i].copy()
             phases = id_df["Intervention"] 
@@ -120,11 +176,16 @@ class AnalyzeStudyAE():
         # Model to cpu (To have everything on the same device)
         # TODO: Allow GPU
         self.model.to("cpu")
+
+        print("STUDY DF")
+        print(self.study_df.head())
         
         # Iterate over all images in study_df
         for i, row in self.study_df.iterrows():#tqdm(self.study_df.iterrows()):
             # Load Image
-            img = Image.open(f'{row["Path"]}/{row["ImageFile"]}'.replace("//","/").replace("./","~/Simulate_Multimodal_Nof1/")).convert("RGB").resize(FINAL_IMAGE_SIZE)
+            print("STUDY DF I")
+            print(i)
+            img = Image.open(f'{row["Path"]}/{row["ImageFile"]}'.replace("//","/")).convert("RGB").resize(FINAL_IMAGE_SIZE)# #.replace("./","~/Simulate_Multimodal_Nof1/")
             img = non_trans(img)
             img = img.unsqueeze(0)
             
@@ -132,8 +193,7 @@ class AnalyzeStudyAE():
             _emb, _res = self.model(img)
              
             # Append results
-            relevant_columns = ['ImageId', 'Id','Intervention','Simulated_severity','ImageFile']
-            meta_data.append({c:row[c] for c in relevant_columns})
+            meta_data.append({c:row[c] for c in RELEVANT_COLUMNS})
             org_images.append(img.detach().numpy())
             res_images.append(_res.detach().numpy())
             embeddings.append(_emb.detach().numpy())

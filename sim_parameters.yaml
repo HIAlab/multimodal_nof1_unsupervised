@@ -1,22 +1,22 @@
 
 
 SYS_PATH : "../.env/lib/python3.8/site-packages"
-RESULTS_PATH : "complex_results"
-STDOUT_PATH : "logs/stdout.txt" 
-DATA_DIR_PATH : "./data/Acne_Nof1_trial"
-CSV_FILE : "metadata.csv" 
-OUTPUT_DIR_PATH : "~/results"
-TARGET_PATH : "complex_results"
-DATA_PATHS : [
-    "../../../../results/no_effect/02",
-    "../../../../results/no_effect/05",
-    "../../../../results/no_effect/07",
-    "../../../../results/no_effect/09",
-    "../../../../results/no_effect/1",
-]
-SPECIFIC_DIRS : [["rad0","resized"]] #[["complex","complex"]],
 
-FINAL_IMAGE_SIZE : 256
+#change this:
+RESULTS_PATHS : [
+    "./results/Simulation/rad0_simulated_images/no_effect/",
+]
+STDOUT_PATH : "logs/stdout.txt" 
+DATA_DIR_PATH : "./data_local/Simulation"
+OUTPUT_DIR_PATH : "./results/Simulation"
+
+
+
+#delete
+SPECIFIC_DIRS : ['rad0_simulated_images/no_effect',
+ 'rad0_simulated_images/strong_effect']
+
+FINAL_IMAGE_SIZE : (256,256)
 LEARNING_RATE : 0.00005
 N_EPOCHS : 1
 BATCH_SIZE : 16
@@ -26,9 +26,8 @@ MAX_CHUNK_SIZE : 10
 FIRST_CHUNK : 0
 LAST_CHUNK : 100
 RECREATE : True
-SIMULATION_OR_PILOT : "PILOT"
-TARGET_COLUMN_AVGSCORE : "AvgScore" 
-TARGET_COLUMN_PCA1 :  "PCA1_uni" 
+
+
 TREATMENT_COLUMN : "Intervention"
 TESTS_TO_RUN : ["t-test","lmar1","scipy"]
 ALPHA : 0.05
@@ -45,3 +44,12 @@ TESTS_TO_COMPARE_FROM_PAPER_SIMULATION : ['scenario',
     'lm_ar1_results_intervention',
     'scipy_AB',
     ]
+
+
+SIMULATION_OR_PILOT : "SIMULATION"
+TARGET_COLUMN_AVGSCORE : "AvgScore" 
+TARGET_COLUMN_SIMSEV : "Simulated_severity" 
+TARGET_COLUMN_PCA1 :  "PCA1_uni" 
+RELEVANT_COLUMNS : ["ImageId", "Id","Intervention","ImageFile"]
+CSV_FILE_SIMULATION : "study.csv" 
+CSV_FILE_PILOT : "scores-scaled-combined.csv" 

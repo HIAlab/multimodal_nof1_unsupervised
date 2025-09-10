@@ -2,6 +2,10 @@ import random
 random.seed(100)
 
 import sys
+import yaml
+with open("parameters.yaml") as f:
+    yaml_params = yaml.safe_load(f)
+SYS_PATH = yaml_params["SYS_PATH"]
 sys.path.append(SYS_PATH)
 
 import pickle
@@ -23,7 +27,6 @@ with open("parameters.yaml") as f:
 
 ALPHA = yaml_params["ALPHA"]
 TESTS_TO_COMPARE_FROM_PAPER = yaml_params["TESTS_TO_COMPARE_FROM_PAPER"]
-RESULTS_PATH = yaml_params["RESULTS_PATH"]
 
 import warnings
 warnings.filterwarnings("ignore", message="An unsupported index was provided and will be ignored when e.g. forecasting.")

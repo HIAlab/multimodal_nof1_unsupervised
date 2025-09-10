@@ -1,0 +1,50 @@
+
+
+SYS_PATH : "../.env/lib/python3.8/site-packages"
+RESULTS_PATH : "complex_results"
+STDOUT_PATH : "logs/stdout.txt" 
+DATA_DIR_PATH : "./data_local/Acne_Nof1_trial"
+OUTPUT_DIR_PATH : "./results/Acne_Nof1_trial"
+RESULTS_PATHS : [
+    "./results/Acne_Nof1_trial/",
+]
+
+#delete
+SPECIFIC_DIRS : [] 
+
+FINAL_IMAGE_SIZE : (256,256)
+LEARNING_RATE : 0.00005
+N_EPOCHS : 1
+BATCH_SIZE : 16
+
+ALL_IDS : range(1,6)
+MAX_CHUNK_SIZE : 10
+FIRST_CHUNK : 0
+LAST_CHUNK : 100
+RECREATE : True
+
+
+TREATMENT_COLUMN : "Intervention"
+TESTS_TO_RUN : ["t-test","lmar1","scipy"]
+ALPHA : 0.05
+PREDICTOR_COLUMNS_SIMULATION : ["Intervention_int", "Phase_int"]
+PREDICTOR_COLUMNS_PILOT : ["treatment_pca", "non_treatment_pca", "Intervention_int_lagged"]
+GROUP_COLUMN : "Intervention"
+GROUP_COLUMN_INT : "Intervention_int"
+LIMIT14 : 14
+
+TESTS_TO_COMPARE_FROM_PAPER : ["ttest_results", "lm_ar1_results_intervention", "scipy_AB"]
+TESTS_TO_COMPARE_FROM_PAPER_SIMULATION : ['scenario',
+    'radius',
+    'ttest_results',
+    'lm_ar1_results_intervention',
+    'scipy_AB',
+    ]
+
+
+SIMULATION_OR_PILOT : "PILOT"
+TARGET_COLUMN_AVGSCORE : "AvgScore" 
+TARGET_COLUMN_SIMSEV : "Simulated_severity" 
+TARGET_COLUMN_PCA1 :  "PCA1_uni" 
+RELEVANT_COLUMNS : ["ImageId", "Id","Intervention","ImageFile"]
+CSV_FILE : "scores-scaled-combined.csv" 

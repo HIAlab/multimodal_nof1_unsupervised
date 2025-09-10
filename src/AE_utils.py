@@ -7,7 +7,8 @@ with open("./parameters.yaml") as f:
     yaml_params = yaml.safe_load(f)
 FINAL_IMAGE_SIZE = yaml_params["FINAL_IMAGE_SIZE"]
 
-
+if isinstance(FINAL_IMAGE_SIZE, str):
+    FINAL_IMAGE_SIZE = eval(FINAL_IMAGE_SIZE)
 
 default_trans = Compose([
     RandomHorizontalFlip(0.5),
