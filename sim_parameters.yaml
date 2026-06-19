@@ -1,0 +1,53 @@
+SIM : True
+
+SYS_PATH : "../.env/lib/python3.8/site-packages"
+
+
+STDOUT_PATH : "../logs/sim_stdout.txt"
+DATA_DIR_PATH : "../data_local/Simulation"
+SPECIFIC_DIRS : [
+ 
+]
+OUTPUT_DIR_PATH : "../results/Simulation/local_Simulation"
+RESULTS_PATH : "../results/Simulation"
+
+EMBEDDINGS_PATH : "../results/Simulation/local_Simulation"
+RADIUS : ["rad10"]
+SCENARIOS : ["no_effect","strong_effect"]
+FINAL_IMAGE_SIZE : (256,256)
+LEARNING_RATE : 0.00005
+N_EPOCHS : 1
+BATCH_SIZE : 16
+
+ALL_IDS : range(1000)
+MAX_CHUNK_SIZE : 100
+FIRST_CHUNK : 0
+LAST_CHUNK : 1000
+RECREATE : True
+
+
+TREATMENT_COLUMN : "Intervention"
+TESTS_TO_RUN : ["t-test","lmar1","scipy"]
+ALPHA : 0.05
+PREDICTOR_COLUMNS_SIMULATION : ["Intervention_int", "Phase_int"]
+PREDICTOR_COLUMNS_PILOT : ["treatment_pca", "non_treatment_pca", "Intervention_int_lagged"]
+GROUP_COLUMN : "Intervention"
+GROUP_COLUMN_INT : "Intervention_int"
+LIMIT14 : 14
+COLS_TO_GROUPBY : ["radius","scenario","test"]
+
+TESTS_TO_COMPARE_FROM_PAPER : ["ttest_results", "lm_ar1_results_intervention", "scipy_AB"]
+TESTS_TO_COMPARE_FROM_PAPER_SIMULATION : ['scenario',
+ 'radius',
+ 'lm_ar1_results_coef', 'lm_ar1_results_intervention', 'scipy_AB',
+       'scipy_AB_statistic', 'ttest_results_estimand',
+       'ttest_results']
+
+
+SIMULATION_OR_PILOT : "SIMULATION"
+TARGET_COLUMN_AVGSCORE : "AvgScore" 
+TARGET_COLUMN_SIMSEV : "Simulated_severity" 
+TARGET_COLUMN_PCA1 :  "PCA1_uni" 
+RELEVANT_COLUMNS : ["ImageId", "Id","Intervention","ImageFile"]
+CSV_FILE_SIMULATION : "study.csv" 
+CSV_FILE_PILOT : "scores-scaled-combined.csv" 
